@@ -12,7 +12,20 @@
           "package_name": "com.example.bamtol"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "153802095426-5i8af5rq9bcvm4agnj6a8ms3v1t0bhc7.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.bamtol",
+            "certificate_hash": "0ca49f3ab009d30d22bf78e87a19593276b0a651"
+          }
+        },
+        {
+          "client_id": "153802095426-ifdsandljjphk23r9nuk38fneog9hns3.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyDI6WQNwUQPC6JLFMz8yvqiNqjIocO7tcA"
@@ -20,7 +33,19 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "153802095426-ifdsandljjphk23r9nuk38fneog9hns3.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "153802095426-bqu3uq2ba6qe3hvq1tk0ejkh09h0j87c.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.bamtol"
+              }
+            }
+          ]
         }
       }
     }
