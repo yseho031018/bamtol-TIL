@@ -7,7 +7,9 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:bamtol/src/splash/controller/splash_controller.dart';
 import 'package:bamtol/src/common/controller/data_load_controller.dart';
 import 'package:bamtol/src/common/controller/authentication_controller.dart';
+import 'package:bamtol/src/common/controller/bottom_nav_controller.dart';
 import 'package:bamtol/src/home/page/home_page.dart';
+import 'package:bamtol/src/root.dart';
 import 'package:bamtol/src/user/login/page/login_page.dart';
 import 'package:bamtol/src/user/login/controller/login_controller.dart';
 import 'package:bamtol/src/user/repository/authentication_repository.dart';
@@ -34,6 +36,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return GetMaterialApp(
       title: '당근마켓 클론코딩',
+      debugShowCheckedModeBanner: false,
       initialRoute: '/',
       theme: ThemeData(
         appBarTheme: const AppBarTheme(
@@ -48,6 +51,7 @@ class MyApp extends StatelessWidget {
       initialBinding: BindingsBuilder(() {
         Get.put(AuthenticationRepository(FirebaseAuth.instance));
         Get.put(UserRepository(FirebaseFirestore.instance));
+        Get.put(BottomNavController());
         Get.put(SplashController());
         Get.put(DataLoadController());
         Get.put(AuthenticationController(
@@ -57,7 +61,7 @@ class MyApp extends StatelessWidget {
       }),
       getPages: [
         GetPage(name: '/', page: () => const App()),
-        GetPage(name: '/home', page: () => const HomePage()),
+        GetPage(name: '/home', page: () => Root()),
         GetPage(
           name: '/login',
           page: () => const LoginPage(),
