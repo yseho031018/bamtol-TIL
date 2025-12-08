@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "153802095426",
+    "project_id": "bamtol-43262",
+    "storage_bucket": "bamtol-43262.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:153802095426:android:7ba6a17c8c3c6d1e2226db",
+        "android_client_info": {
+          "package_name": "com.example.bamtol"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDI6WQNwUQPC6JLFMz8yvqiNqjIocO7tcA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
