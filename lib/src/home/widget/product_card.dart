@@ -24,23 +24,7 @@ class ProductCard extends StatelessWidget {
             // 왼쪽: 썸네일 이미지
             ClipRRect(
               borderRadius: BorderRadius.circular(8),
-              child: Image.network(
-                product.imageUrl,
-                width: 100,
-                height: 100,
-                fit: BoxFit.cover,
-                errorBuilder: (context, error, stackTrace) {
-                  return Container(
-                    width: 100,
-                    height: 100,
-                    color: Colors.grey[800],
-                    child: const Icon(
-                      Icons.image_not_supported,
-                      color: Colors.grey,
-                    ),
-                  );
-                },
-              ),
+              child: _buildProductImage(),
             ),
             const SizedBox(width: 16),
             // 오른쪽: 텍스트 정보
@@ -70,6 +54,49 @@ class ProductCard extends StatelessWidget {
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildProductImage() {
+    // imageBytes가 있으면 MemoryImage 사용
+    if (product.imageBytes != null) {
+      return Image.memory(
+        product.imageBytes!,
+        width: 100,
+        height: 100,
+        fit: BoxFit.cover,
+        errorBuilder: (context, error, stackTrace) {
+          return _buildPlaceholder();
+        },
+      );
+    }
+    
+    // imageUrl이 있으면 NetworkImage 사용
+    if (product.imageUrl != null && product.imageUrl!.isNotEmpty) {
+      return Image.network(
+        product.imageUrl!,
+        width: 100,
+        height: 100,
+        fit: BoxFit.cover,
+        errorBuilder: (context, error, stackTrace) {
+          return _buildPlaceholder();
+        },
+      );
+    }
+    
+    // 둘 다 없으면 placeholder
+    return _buildPlaceholder();
+  }
+
+  Widget _buildPlaceholder() {
+    return Container(
+      width: 100,
+      height: 100,
+      color: Colors.grey[800],
+      child: const Icon(
+        Icons.image_not_supported,
+        color: Colors.grey,
       ),
     );
   }

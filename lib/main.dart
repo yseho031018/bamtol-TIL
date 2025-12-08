@@ -8,6 +8,7 @@ import 'package:bamtol/src/splash/controller/splash_controller.dart';
 import 'package:bamtol/src/common/controller/data_load_controller.dart';
 import 'package:bamtol/src/common/controller/authentication_controller.dart';
 import 'package:bamtol/src/common/controller/bottom_nav_controller.dart';
+import 'package:bamtol/src/common/controller/location_controller.dart';
 import 'package:bamtol/src/home/page/home_page.dart';
 import 'package:bamtol/src/root.dart';
 import 'package:bamtol/src/user/login/page/login_page.dart';
@@ -18,6 +19,9 @@ import 'package:bamtol/src/user/signup/page/signup_page.dart';
 import 'package:bamtol/src/user/signup/controller/signup_controller.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:bamtol/src/product/page/product_register_page.dart';
+import 'package:bamtol/src/product/controller/product_register_controller.dart';
+import 'package:bamtol/src/product/controller/product_controller.dart';
 
 late SharedPreferences prefs;
 void main() async {
@@ -52,6 +56,8 @@ class MyApp extends StatelessWidget {
         Get.put(AuthenticationRepository(FirebaseAuth.instance));
         Get.put(UserRepository(FirebaseFirestore.instance));
         Get.put(BottomNavController());
+        Get.put(LocationController());
+        Get.put(ProductController());
         Get.put(SplashController());
         Get.put(DataLoadController());
         Get.put(AuthenticationController(
@@ -79,6 +85,14 @@ class MyApp extends StatelessWidget {
                 Get.find<UserRepository>(),
                 Get.parameters['uid'] ?? '',
               ));
+          }),
+        ),
+        GetPage(
+          name: '/product/register',
+          page: () => const ProductRegisterPage(),
+          binding: BindingsBuilder(() {
+            Get.lazyPut<ProductRegisterController>(
+              () => ProductRegisterController());
           }),
         ),
       ],

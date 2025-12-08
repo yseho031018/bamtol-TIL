@@ -24,6 +24,11 @@ dependencies:
   sign_in_with_apple: ^7.0.1
   crypto: ^3.0.7
   json_annotation: ^4.9.0
+  image_picker: ^1.0.7
+  flutter_map: ^8.2.2
+  geolocator: ^14.0.2
+  latlong2: ^0.9.1
+  http: ^1.6.0
 
 dev_dependencies:
   flutter_test:

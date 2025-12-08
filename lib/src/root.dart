@@ -14,12 +14,12 @@ class Root extends GetView<BottomNavController> {
       body: TabBarView(
           physics: const NeverScrollableScrollPhysics(),
           controller: controller.tabController,
-          children: const [
+          children: [
             HomePage(),
-            Center(child: AppFont('동네생활')),
-            Center(child: AppFont('내 근처')),
-            Center(child: AppFont('채팅')),
-            Center(child: AppFont('나의 밤톨')),
+            const Center(child: AppFont('동네생활')),
+            const Center(child: AppFont('내 근처')),
+            const Center(child: AppFont('채팅')),
+            const Center(child: AppFont('나의 밤톨')),
           ]),
       bottomNavigationBar: Obx(
         () => BottomNavigationBar(
