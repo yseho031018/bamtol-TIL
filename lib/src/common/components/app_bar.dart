@@ -7,6 +7,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   final VoidCallback? onSearchTap;
   final VoidCallback? onMenuTap;
   final VoidCallback? onNotificationTap;
+  final VoidCallback? onLocationTap;
 
   const CustomAppBar({
     super.key,
@@ -14,6 +15,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
     this.onSearchTap,
     this.onMenuTap,
     this.onNotificationTap,
+    this.onLocationTap,
   });
 
   @override
@@ -30,25 +32,28 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               // 왼쪽: 지역명 표시
-              Row(
-                children: [
-                  AppFont(
-                    locationName,
-                    size: 18,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.white,
-                  ),
-                  const SizedBox(width: 8),
-                  SvgPicture.asset(
-                    'assets/svg/icons/bottom_arrow.svg',
-                    width: 6,
-                    height: 6,
-                    colorFilter: const ColorFilter.mode(
-                      Colors.white,
-                      BlendMode.srcIn,
+              GestureDetector(
+                onTap: onLocationTap,
+                child: Row(
+                  children: [
+                    AppFont(
+                      locationName,
+                      size: 18,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.white,
                     ),
-                  ),
-                ],
+                    const SizedBox(width: 8),
+                    SvgPicture.asset(
+                      'assets/svg/icons/bottom_arrow.svg',
+                      width: 6,
+                      height: 6,
+                      colorFilter: const ColorFilter.mode(
+                        Colors.white,
+                        BlendMode.srcIn,
+                      ),
+                    ),
+                  ],
+                ),
               ),
               // 오른쪽: 아이콘 버튼들
               Row(

@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 class ProductModel {
   final String id;
   final String title;
@@ -5,7 +7,12 @@ class ProductModel {
   final DateTime createdAt;
   final int? price;
   final bool isFree;
-  final String imageUrl;
+  final String? imageUrl;
+  final String? description;
+  final String? location;
+  final Uint8List? imageBytes;
+  final List<String> imageUrls;
+  final List<Uint8List> imageBytesList;
 
   ProductModel({
     required this.id,
@@ -14,8 +21,14 @@ class ProductModel {
     required this.createdAt,
     this.price,
     this.isFree = false,
-    required this.imageUrl,
-  });
+    this.imageUrl,
+    this.description,
+    this.location,
+    this.imageBytes,
+    List<String>? imageUrls,
+    List<Uint8List>? imageBytesList,
+  }) : imageUrls = imageUrls ?? (imageUrl != null ? [imageUrl] : []),
+       imageBytesList = imageBytesList ?? (imageBytes != null ? [imageBytes] : []);
 
   String get formattedDate {
     final now = DateTime.now();

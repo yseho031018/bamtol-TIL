@@ -24,23 +24,7 @@ class ProductCard extends StatelessWidget {
             // 왼쪽: 썸네일 이미지
             ClipRRect(
               borderRadius: BorderRadius.circular(8),
-              child: Image.network(
-                product.imageUrl,
-                width: 100,
-                height: 100,
-                fit: BoxFit.cover,
-                errorBuilder: (context, error, stackTrace) {
-                  return Container(
-                    width: 100,
-                    height: 100,
-                    color: Colors.grey[800],
-                    child: const Icon(
-                      Icons.image_not_supported,
-                      color: Colors.grey,
-                    ),
-                  );
-                },
-              ),
+              child: _buildProductImage(),
             ),
             const SizedBox(width: 16),
             // 오른쪽: 텍스트 정보
@@ -70,6 +54,67 @@ class ProductCard extends StatelessWidget {
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildProductImage() {
+    // 1. 로컬 이미지 리스트 확인
+    if (product.imageBytesList.isNotEmpty) {
+      return Image.memory(
+        product.imageBytesList.first,
+        width: 100,
+        height: 100,
+        fit: BoxFit.cover,
+        errorBuilder: (context, error, stackTrace) => _buildPlaceholder(),
+      );
+    }
+    
+    // 2. 단일 로컬 이미지 확인
+    if (product.imageBytes != null) {
+      return Image.memory(
+        product.imageBytes!,
+        width: 100,
+        height: 100,
+        fit: BoxFit.cover,
+        errorBuilder: (context, error, stackTrace) => _buildPlaceholder(),
+      );
+    }
+    
+    // 3. 네트워크 이미지 리스트 확인
+    if (product.imageUrls.isNotEmpty) {
+      return Image.network(
+        product.imageUrls.first,
+        width: 100,
+        height: 100,
+        fit: BoxFit.cover,
+        errorBuilder: (context, error, stackTrace) => _buildPlaceholder(),
+      );
+    }
+    
+    // 4. 단일 네트워크 이미지 확인
+    if (product.imageUrl != null && product.imageUrl!.isNotEmpty) {
+      return Image.network(
+        product.imageUrl!,
+        width: 100,
+        height: 100,
+        fit: BoxFit.cover,
+        errorBuilder: (context, error, stackTrace) => _buildPlaceholder(),
+      );
+    }
+    
+    // 5. 이미지 없음
+    return _buildPlaceholder();
+  }
+
+  Widget _buildPlaceholder() {
+    return Container(
+      width: 100,
+      height: 100,
+      color: Colors.grey[800],
+      child: const Icon(
+        Icons.image_not_supported,
+        color: Colors.grey,
       ),
     );
   }

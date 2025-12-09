@@ -1,113 +1,222 @@
 import 'package:bamtol/src/common/components/app_bar.dart';
 import 'package:bamtol/src/common/components/app_font.dart';
 import 'package:bamtol/src/common/controller/authentication_controller.dart';
-import 'package:bamtol/src/home/model/product_model.dart';
+import 'package:bamtol/src/common/controller/location_controller.dart';
 import 'package:bamtol/src/home/widget/product_card.dart';
+import 'package:bamtol/src/home/page/neighborhood_picker_page.dart';
+import 'package:bamtol/src/menu/page/menu_page.dart';
+import 'package:bamtol/src/notification/page/notification_page.dart';
+import 'package:bamtol/src/product/controller/product_controller.dart';
+import 'package:bamtol/src/product/page/product_detail_page.dart';
+import 'package:bamtol/src/search/page/search_page.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 class HomePage extends StatelessWidget {
-  const HomePage({super.key});
+  HomePage({super.key});
 
-  // 샘플 상품 데이터
-  List<ProductModel> get _sampleProducts => [
-        ProductModel(
-          id: '1',
-          title: '애플 맥북 프로 14인치',
-          sellerName: '테크러버',
-          createdAt: DateTime.now().subtract(const Duration(hours: 2)),
-          price: 2500000,
-          imageUrl:
-              'https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=800',
-        ),
-        ProductModel(
-          id: '2',
-          title: '빈티지 원목 책상',
-          sellerName: '인테리어맘',
-          createdAt: DateTime.now().subtract(const Duration(days: 1)),
-          price: 150000,
-          imageUrl:
-              'https://images.unsplash.com/photo-1518455027359-f3f8164ba6bd?w=800',
-        ),
-        ProductModel(
-          id: '3',
-          title: '아이폰 14 프로 케이스',
-          sellerName: '폰케이스샵',
-          createdAt: DateTime.now().subtract(const Duration(minutes: 30)),
-          isFree: true,
-          imageUrl:
-              'https://images.unsplash.com/photo-1601784551446-20c9e07cdbdb?w=800',
-        ),
-        ProductModel(
-          id: '4',
-          title: '캠핑용 폴딩 체어 2개',
-          sellerName: '캠핑매니아',
-          createdAt: DateTime.now().subtract(const Duration(days: 3)),
-          price: 45000,
-          imageUrl:
-              'https://images.unsplash.com/photo-1504280390367-361c6d9f38f4?w=800',
-        ),
-        ProductModel(
-          id: '5',
-          title: '무선 블루투스 이어폰',
-          sellerName: '음악사랑',
-          createdAt: DateTime.now().subtract(const Duration(hours: 5)),
-          isFree: true,
-          imageUrl:
-              'https://images.unsplash.com/photo-1590658268037-6bf12165a8df?w=800',
-        ),
-        ProductModel(
-          id: '6',
-          title: '손뜨개 인형 세트',
-          sellerName: '핸드메이드',
-          createdAt: DateTime.now().subtract(const Duration(days: 2)),
-          price: 25000,
-          imageUrl:
-              'https://images.unsplash.com/photo-1558679908-541bcf1249ff?w=800',
-        ),
-      ];
+  final LocationController locationController = Get.find<LocationController>();
+  final ProductController productController = Get.find<ProductController>();
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return Obx(() => Scaffold(
       backgroundColor: const Color(0xff212123),
       appBar: CustomAppBar(
-        locationName: '아라동',
+        locationName: locationController.currentLocation.name,
+        onLocationTap: () {
+          _showLocationSelector();
+        },
         onSearchTap: () {
-          debugPrint('검색 버튼 클릭');
+          Get.to(() => const SearchPage());
         },
         onMenuTap: () {
-          debugPrint('메뉴 버튼 클릭');
+          Get.to(() => const MenuPage());
         },
         onNotificationTap: () {
-          debugPrint('알림 버튼 클릭');
+          Get.to(() => const NotificationPage());
         },
       ),
-      body: ListView.separated(
-        padding: const EdgeInsets.symmetric(vertical: 8),
-        itemCount: _sampleProducts.length,
-        separatorBuilder: (context, index) => Divider(
-          color: Colors.grey.withOpacity(0.1),
-          height: 1,
-          indent: 16,
-          endIndent: 16,
-        ),
-        itemBuilder: (context, index) {
-          final product = _sampleProducts[index];
-          return ProductCard(
-            product: product,
-            onTap: () {
-              // 상세 페이지로 이동
-              Get.snackbar(
-                product.title,
-                '상세 페이지로 이동합니다',
-                backgroundColor: Colors.white24,
-                colorText: Colors.white,
-                snackPosition: SnackPosition.BOTTOM,
-              );
-            },
-          );
+      body: productController.products.isEmpty
+          ? const Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.shopping_bag_outlined, color: Colors.grey, size: 64),
+                  SizedBox(height: 16),
+                  AppFont('등록된 상품이 없습니다', size: 16, color: Colors.grey),
+                  SizedBox(height: 8),
+                  AppFont('글쓰기 버튼을 눌러 상품을 등록해보세요', size: 14, color: Colors.grey),
+                ],
+              ),
+            )
+          : ListView.separated(
+              padding: const EdgeInsets.symmetric(vertical: 8),
+              itemCount: productController.products.length,
+              separatorBuilder: (context, index) => Divider(
+                color: Colors.grey.withOpacity(0.1),
+                height: 1,
+                indent: 16,
+                endIndent: 16,
+              ),
+              itemBuilder: (context, index) {
+                final product = productController.products[index];
+                return ProductCard(
+                  product: product,
+                  onTap: () {
+                    Get.to(() => ProductDetailPage(product: product));
+                  },
+                );
+              },
+            ),
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: () {
+          Get.toNamed('/product/register');
         },
+        backgroundColor: Colors.orange,
+        icon: const Icon(Icons.add, color: Colors.white, size: 20),
+        label: const AppFont(
+          '글쓰기',
+          size: 14,
+          fontWeight: FontWeight.w600,
+          color: Colors.white,
+        ),
+        extendedPadding: const EdgeInsets.symmetric(horizontal: 16),
+      ),
+    ));
+  }
+
+  void _showLocationSelector() {
+    Get.bottomSheet(
+      Obx(() => Container(
+        padding: const EdgeInsets.symmetric(vertical: 20),
+        decoration: const BoxDecoration(
+          color: Color(0xff2a2a2c),
+          borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 20),
+              child: AppFont(
+                '내 동네 설정',
+                size: 18,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            const SizedBox(height: 16),
+            // 동적 동네 목록
+            ...List.generate(locationController.myLocations.length, (index) {
+              final location = locationController.myLocations[index];
+              final isSelected = locationController.selectedIndex.value == index;
+              return _buildLocationItem(location.name, isSelected, index);
+            }),
+            const SizedBox(height: 16),
+            // 동네 추가 버튼 (최대 2개까지)
+            if (locationController.canAddMore)
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: GestureDetector(
+                  onTap: () async {
+                    Get.back();
+                    final result = await Get.to(() => const NeighborhoodPickerPage());
+                    if (result != null) {
+                      locationController.addLocation(LocationModel(
+                        name: result['name'],
+                        fullAddress: result['fullAddress'],
+                        latitude: result['latitude'],
+                        longitude: result['longitude'],
+                      ));
+                      Get.snackbar(
+                        '동네 추가 완료',
+                        '${result['name']}이(가) 내 동네로 추가되었습니다',
+                        backgroundColor: Colors.white24,
+                        colorText: Colors.white,
+                        snackPosition: SnackPosition.BOTTOM,
+                      );
+                    }
+                  },
+                  child: Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    decoration: BoxDecoration(
+                      border: Border.all(color: Colors.grey),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: const Center(
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(Icons.add, color: Colors.white, size: 20),
+                          SizedBox(width: 8),
+                          AppFont('내 동네 추가하기', size: 14),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            if (!locationController.canAddMore)
+              const Padding(
+                padding: EdgeInsets.symmetric(horizontal: 20),
+                child: Center(
+                  child: AppFont(
+                    '동네는 최대 2개까지 설정할 수 있어요',
+                    size: 13,
+                    color: Colors.grey,
+                  ),
+                ),
+              ),
+            const SizedBox(height: 20),
+          ],
+        ),
+      )),
+    );
+  }
+
+  Widget _buildLocationItem(String name, bool isSelected, int index) {
+    return GestureDetector(
+      onTap: () {
+        locationController.selectLocation(index);
+        Get.back();
+        Get.snackbar(
+          '동네 변경',
+          '$name으로 변경되었습니다',
+          backgroundColor: Colors.white24,
+          colorText: Colors.white,
+          snackPosition: SnackPosition.BOTTOM,
+        );
+      },
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+        color: isSelected ? Colors.orange.withOpacity(0.1) : Colors.transparent,
+        child: Row(
+          children: [
+            AppFont(
+              name,
+              size: 16,
+              fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
+              color: isSelected ? Colors.orange : Colors.white,
+            ),
+            if (isSelected) ...[
+              const Spacer(),
+              const Icon(Icons.check, color: Colors.orange, size: 20),
+            ],
+            // 삭제 버튼 (동네가 2개 이상일 때만, 선택되지 않은 동네만)
+            if (!isSelected && locationController.myLocations.length > 1) ...[
+              const Spacer(),
+              GestureDetector(
+                onTap: () {
+                  locationController.removeLocation(index);
+                },
+                child: const Icon(Icons.close, color: Colors.grey, size: 18),
+              ),
+            ],
+          ],
+        ),
       ),
     );
   }
