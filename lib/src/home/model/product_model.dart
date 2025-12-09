@@ -11,6 +11,8 @@ class ProductModel {
   final String? description;
   final String? location;
   final Uint8List? imageBytes;
+  final List<String> imageUrls;
+  final List<Uint8List> imageBytesList;
 
   ProductModel({
     required this.id,
@@ -23,7 +25,10 @@ class ProductModel {
     this.description,
     this.location,
     this.imageBytes,
-  });
+    List<String>? imageUrls,
+    List<Uint8List>? imageBytesList,
+  }) : imageUrls = imageUrls ?? (imageUrl != null ? [imageUrl] : []),
+       imageBytesList = imageBytesList ?? (imageBytes != null ? [imageBytes] : []);
 
   String get formattedDate {
     final now = DateTime.now();

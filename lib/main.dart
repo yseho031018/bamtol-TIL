@@ -1,6 +1,7 @@
 import 'package:bamtol/src/app.dart';
 import 'package:bamtol/firebase_options.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -96,6 +97,14 @@ class MyApp extends StatelessWidget {
           }),
         ),
       ],
+      scrollBehavior: const MaterialScrollBehavior().copyWith(
+        dragDevices: {
+          PointerDeviceKind.mouse,
+          PointerDeviceKind.touch,
+          PointerDeviceKind.stylus,
+          PointerDeviceKind.unknown,
+        },
+      ),
     );
   }
 }

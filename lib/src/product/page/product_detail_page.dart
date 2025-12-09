@@ -1,3 +1,5 @@
+import 'package:bamtol/src/chat/page/chat_detail_page.dart';
+import 'dart:typed_data';
 import 'package:bamtol/src/common/components/app_font.dart';
 import 'package:bamtol/src/home/model/product_model.dart';
 import 'package:flutter/material.dart';
@@ -5,13 +7,66 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:get/get.dart';
 import 'package:latlong2/latlong.dart';
 
-class ProductDetailPage extends StatelessWidget {
+class ProductDetailPage extends StatefulWidget {
   final ProductModel product;
-  
+
   const ProductDetailPage({
     super.key,
     required this.product,
   });
+
+  @override
+  State<ProductDetailPage> createState() => _ProductDetailPageState();
+}
+
+class _ProductDetailPageState extends State<ProductDetailPage> {
+  int _currentPage = 0;
+  late final PageController _pageController;
+
+  @override
+  void initState() {
+    super.initState();
+    // 무한 스크롤 효과를 위해 중간 지점부터 시작
+    final imageCount = _getImageCount();
+    int initialPage = 0;
+    if (imageCount > 1) {
+      initialPage = imageCount * 1000;
+    }
+    _pageController = PageController(initialPage: initialPage);
+  }
+
+  int _getImageCount() {
+    if (widget.product.imageBytesList.isNotEmpty) {
+      return widget.product.imageBytesList.length;
+    } else if (widget.product.imageUrls.isNotEmpty) {
+      return widget.product.imageUrls.length;
+    } else if (widget.product.imageBytes != null) {
+      return 1;
+    } else if (widget.product.imageUrl != null) {
+      return 1;
+    }
+    return 0;
+  }
+
+  List<dynamic> get _allImages {
+    final images = <dynamic>[];
+    if (widget.product.imageBytesList.isNotEmpty) {
+      images.addAll(widget.product.imageBytesList);
+    } else if (widget.product.imageUrls.isNotEmpty) {
+      images.addAll(widget.product.imageUrls);
+    } else if (widget.product.imageBytes != null) {
+      images.add(widget.product.imageBytes!);
+    } else if (widget.product.imageUrl != null) {
+      images.add(widget.product.imageUrl!);
+    }
+    return images;
+  }
+
+  @override
+  void dispose() {
+    _pageController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -70,28 +125,10 @@ class ProductDetailPage extends StatelessWidget {
               ),
             ],
             flexibleSpace: FlexibleSpaceBar(
-              background: product.imageUrl != null
-                  ? Image.network(
-                      product.imageUrl!,
-                      fit: BoxFit.cover,
-                      errorBuilder: (context, error, stackTrace) {
-                        return Container(
-                          color: const Color(0xff2a2a2c),
-                          child: const Center(
-                            child: Icon(Icons.image, color: Colors.grey, size: 64),
-                          ),
-                        );
-                      },
-                    )
-                  : Container(
-                      color: const Color(0xff2a2a2c),
-                      child: const Center(
-                        child: Icon(Icons.image, color: Colors.grey, size: 64),
-                      ),
-                    ),
+              background: _buildImageSection(),
             ),
           ),
-          
+
           // 상품 정보
           SliverToBoxAdapter(
             child: Column(
@@ -116,7 +153,9 @@ class ProductDetailPage extends StatelessWidget {
                         ),
                         child: Center(
                           child: AppFont(
-                            product.sellerName[0],
+                            widget.product.sellerName.isNotEmpty
+                                ? widget.product.sellerName[0]
+                                : '?',
                             size: 20,
                             fontWeight: FontWeight.bold,
                             color: Colors.orange,
@@ -129,7 +168,7 @@ class ProductDetailPage extends StatelessWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             AppFont(
-                              product.sellerName,
+                              widget.product.sellerName,
                               size: 16,
                               fontWeight: FontWeight.w600,
                             ),
@@ -159,47 +198,48 @@ class ProductDetailPage extends StatelessWidget {
                     ],
                   ),
                 ),
-                
+
                 // 상품 제목 및 정보
                 Padding(
                   padding: const EdgeInsets.all(16),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                        decoration: BoxDecoration(
-                          color: const Color(0xff2a2a2c),
-                          borderRadius: BorderRadius.circular(4),
+                      if (widget.product.imageUrls.isNotEmpty || widget.product.imageBytesList.isNotEmpty) // 카테고리 정보가 없어서 임시로 하드코딩 되어있던 부분 유지
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                          decoration: BoxDecoration(
+                            color: const Color(0xff2a2a2c),
+                            borderRadius: BorderRadius.circular(4),
+                          ),
+                          child: const AppFont(
+                            '디지털기기',
+                            size: 12,
+                            color: Colors.grey,
+                          ),
                         ),
-                        child: const AppFont(
-                          '디지털기기',
-                          size: 12,
-                          color: Colors.grey,
-                        ),
-                      ),
                       const SizedBox(height: 12),
                       AppFont(
-                        product.title,
+                        widget.product.title,
                         size: 20,
                         fontWeight: FontWeight.w600,
                       ),
                       const SizedBox(height: 8),
                       AppFont(
-                        _getTimeAgo(product.createdAt),
+                        _getTimeAgo(widget.product.createdAt),
                         size: 13,
                         color: Colors.grey,
                       ),
                       const SizedBox(height: 20),
-                      const AppFont(
-                        '상품 상태가 좋습니다. 구매 후 거의 사용하지 않았어요.\n직거래 가능하며 택배도 가능합니다.\n\n문의 주시면 친절하게 답변 드릴게요!',
+                      AppFont(
+                        widget.product.description ?? '내용이 없습니다.',
                         size: 15,
                         color: Colors.white,
                       ),
                       const SizedBox(height: 24),
                       Row(
                         children: [
-                          AppFont(
+                          const AppFont(
                             '관심 12',
                             size: 13,
                             color: Colors.grey,
@@ -221,102 +261,103 @@ class ProductDetailPage extends StatelessWidget {
                     ],
                   ),
                 ),
-                
+
                 // 거래 희망 장소
-                Container(
-                  padding: const EdgeInsets.all(16),
-                  decoration: const BoxDecoration(
-                    border: Border(
-                      top: BorderSide(color: Color(0xff2a2a2c), width: 8),
-                    ),
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const AppFont(
-                        '거래 희망 장소',
-                        size: 16,
-                        fontWeight: FontWeight.w600,
+                if (widget.product.location != null)
+                  Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: const BoxDecoration(
+                      border: Border(
+                        top: BorderSide(color: Color(0xff2a2a2c), width: 8),
                       ),
-                      const SizedBox(height: 12),
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(8),
-                        child: SizedBox(
-                          width: double.infinity,
-                          height: 150,
-                          child: Stack(
-                            children: [
-                              // 지도
-                              FlutterMap(
-                                options: const MapOptions(
-                                  initialCenter: LatLng(33.4890, 126.4983),
-                                  initialZoom: 15.0,
-                                  interactionOptions: InteractionOptions(
-                                    flags: InteractiveFlag.none,
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const AppFont(
+                          '거래 희망 장소',
+                          size: 16,
+                          fontWeight: FontWeight.w600,
+                        ),
+                        const SizedBox(height: 12),
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(8),
+                          child: SizedBox(
+                            width: double.infinity,
+                            height: 150,
+                            child: Stack(
+                              children: [
+                                // 지도
+                                FlutterMap(
+                                  options: const MapOptions(
+                                    initialCenter: LatLng(33.4890, 126.4983),
+                                    initialZoom: 15.0,
+                                    interactionOptions: InteractionOptions(
+                                      flags: InteractiveFlag.none,
+                                    ),
                                   ),
-                                ),
-                                children: [
-                                  TileLayer(
-                                    urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-                                    userAgentPackageName: 'com.example.bamtol',
-                                  ),
-                                  const MarkerLayer(
-                                    markers: [
-                                      Marker(
-                                        point: LatLng(33.4890, 126.4983),
-                                        width: 40,
-                                        height: 40,
-                                        child: Icon(
-                                          Icons.location_on,
-                                          color: Colors.orange,
-                                          size: 40,
+                                  children: [
+                                    TileLayer(
+                                      urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                                      userAgentPackageName: 'com.example.bamtol',
+                                    ),
+                                    const MarkerLayer(
+                                      markers: [
+                                        Marker(
+                                          point: LatLng(33.4890, 126.4983),
+                                          width: 40,
+                                          height: 40,
+                                          child: Icon(
+                                            Icons.location_on,
+                                            color: Colors.orange,
+                                            size: 40,
+                                          ),
                                         ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                                // 주소 표시 오버레이
+                                Positioned(
+                                  bottom: 0,
+                                  left: 0,
+                                  right: 0,
+                                  child: Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                                    decoration: BoxDecoration(
+                                      gradient: LinearGradient(
+                                        begin: Alignment.bottomCenter,
+                                        end: Alignment.topCenter,
+                                        colors: [
+                                          Colors.black.withOpacity(0.8),
+                                          Colors.transparent,
+                                        ],
                                       ),
-                                    ],
-                                  ),
-                                ],
-                              ),
-                              // 주소 표시 오버레이
-                              Positioned(
-                                bottom: 0,
-                                left: 0,
-                                right: 0,
-                                child: Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                                  decoration: BoxDecoration(
-                                    gradient: LinearGradient(
-                                      begin: Alignment.bottomCenter,
-                                      end: Alignment.topCenter,
-                                      colors: [
-                                        Colors.black.withOpacity(0.8),
-                                        Colors.transparent,
+                                    ),
+                                    child: Row(
+                                      children: [
+                                        const Icon(Icons.location_on, color: Colors.orange, size: 16),
+                                        const SizedBox(width: 4),
+                                        AppFont(widget.product.location!, size: 14, fontWeight: FontWeight.w500),
                                       ],
                                     ),
                                   ),
-                                  child: const Row(
-                                    children: [
-                                      Icon(Icons.location_on, color: Colors.orange, size: 16),
-                                      SizedBox(width: 4),
-                                      AppFont('아라동', size: 14, fontWeight: FontWeight.w500),
-                                    ],
-                                  ),
                                 ),
-                              ),
-                            ],
+                              ],
+                            ),
                           ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
-                ),
-                
+
                 const SizedBox(height: 100), // 하단 버튼 공간
               ],
             ),
           ),
         ],
       ),
-      
+
       // 하단 고정 영역
       bottomNavigationBar: Container(
         padding: const EdgeInsets.all(16),
@@ -357,11 +398,11 @@ class ProductDetailPage extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     AppFont(
-                      product.isFree ? '나눔' : '${_formatPrice(product.price ?? 0)}원',
+                      widget.product.isFree ? '나눔' : '${_formatPrice(widget.product.price ?? 0)}원',
                       size: 18,
                       fontWeight: FontWeight.bold,
                     ),
-                    if (!product.isFree)
+                    if (!widget.product.isFree)
                       const AppFont(
                         '가격 제안하기',
                         size: 13,
@@ -373,13 +414,7 @@ class ProductDetailPage extends StatelessWidget {
               // 채팅 버튼
               ElevatedButton(
                 onPressed: () {
-                  Get.snackbar(
-                    '채팅',
-                    '${product.sellerName}님과 채팅을 시작합니다',
-                    backgroundColor: Colors.white24,
-                    colorText: Colors.white,
-                    snackPosition: SnackPosition.BOTTOM,
-                  );
+                  Get.to(() => ChatDetailPage(product: widget.product));
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.orange,
@@ -398,6 +433,120 @@ class ProductDetailPage extends StatelessWidget {
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildImageSection() {
+    final images = _allImages;
+
+    if (images.isEmpty) {
+      return Container(
+        color: const Color(0xff2a2a2c),
+        child: const Center(
+          child: Icon(Icons.image, color: Colors.grey, size: 64),
+        ),
+      );
+    }
+
+    return Stack(
+      children: [
+        PageView.builder(
+          controller: _pageController,
+          // 이미지가 1개보다 많을 때만 무한 스크롤 적용
+          itemCount: images.length > 1 ? null : 1,
+          onPageChanged: (index) {
+            setState(() {
+              _currentPage = index % images.length;
+            });
+          },
+          itemBuilder: (context, index) {
+            final image = images[index % images.length];
+            if (image is Uint8List) {
+              return Image.memory(
+                image,
+                fit: BoxFit.cover,
+                errorBuilder: (context, error, stackTrace) => _buildErrorImage(),
+              );
+            } else if (image is String) {
+              return Image.network(
+                image,
+                fit: BoxFit.cover,
+                errorBuilder: (context, error, stackTrace) => _buildErrorImage(),
+              );
+            }
+            return _buildErrorImage();
+          },
+        ),
+        // 인디케이터 (이미지가 2개 이상일 때만 표시)
+        if (images.length > 1) ...[
+          Positioned(
+            bottom: 16,
+            left: 0,
+            right: 0,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: List.generate(images.length, (index) {
+                return Container(
+                  width: 8,
+                  height: 8,
+                  margin: const EdgeInsets.symmetric(horizontal: 4),
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: _currentPage == index
+                        ? Colors.white
+                        : Colors.white.withOpacity(0.4),
+                  ),
+                );
+              }),
+            ),
+          ),
+          
+          // 왼쪽 화살표
+          Positioned(
+            left: 16,
+            top: 0,
+            bottom: 0,
+            child: Center(
+              child: _buildNavArrow(
+                icon: Icons.chevron_left,
+                onTap: () {
+                  _pageController.previousPage(
+                    duration: const Duration(milliseconds: 300),
+                    curve: Curves.easeInOut,
+                  );
+                },
+              ),
+            ),
+          ),
+          
+          // 오른쪽 화살표
+          Positioned(
+            right: 16,
+            top: 0,
+            bottom: 0,
+            child: Center(
+              child: _buildNavArrow(
+                icon: Icons.chevron_right,
+                onTap: () {
+                  _pageController.nextPage(
+                    duration: const Duration(milliseconds: 300),
+                    curve: Curves.easeInOut,
+                  );
+                },
+              ),
+            ),
+          ),
+        ],
+      ],
+    );
+  }
+
+  Widget _buildErrorImage() {
+    return Container(
+      color: const Color(0xff2a2a2c),
+      child: const Center(
+        child: Icon(Icons.image_not_supported, color: Colors.grey, size: 64),
       ),
     );
   }
@@ -450,6 +599,23 @@ class ProductDetailPage extends StatelessWidget {
     return price.toString().replaceAllMapped(
       RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
       (Match m) => '${m[1]},',
+    );
+  }
+  Widget _buildNavArrow({required IconData icon, required VoidCallback onTap}) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.all(8),
+        decoration: BoxDecoration(
+          color: Colors.black.withOpacity(0.3),
+          shape: BoxShape.circle,
+        ),
+        child: Icon(
+          icon,
+          color: Colors.white,
+          size: 24,
+        ),
+      ),
     );
   }
 }

@@ -1,4 +1,5 @@
 import 'dart:typed_data';
+import 'package:bamtol/src/common/controller/bottom_nav_controller.dart';
 import 'package:bamtol/src/product/controller/product_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -173,8 +174,18 @@ class ProductRegisterController extends GetxController {
       snackPosition: SnackPosition.BOTTOM,
     );
 
-    // 이전 페이지로 돌아가기
-    Get.back();
+    // 키보드 숨기기
+    FocusManager.instance.primaryFocus?.unfocus();
+
+    // 홈 화면으로 이동 (스택 초기화 및 탭 0번으로 변경)
+    Get.offAllNamed('/home');
+    
+    try {
+      final bottomNavController = Get.find<BottomNavController>();
+      bottomNavController.changeBottomNav(0);
+    } catch (e) {
+      // BottomNavController를 찾을 수 없는 경우 무시
+    }
   }
 
   @override

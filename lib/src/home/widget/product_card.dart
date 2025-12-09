@@ -59,33 +59,51 @@ class ProductCard extends StatelessWidget {
   }
 
   Widget _buildProductImage() {
-    // imageBytes가 있으면 MemoryImage 사용
+    // 1. 로컬 이미지 리스트 확인
+    if (product.imageBytesList.isNotEmpty) {
+      return Image.memory(
+        product.imageBytesList.first,
+        width: 100,
+        height: 100,
+        fit: BoxFit.cover,
+        errorBuilder: (context, error, stackTrace) => _buildPlaceholder(),
+      );
+    }
+    
+    // 2. 단일 로컬 이미지 확인
     if (product.imageBytes != null) {
       return Image.memory(
         product.imageBytes!,
         width: 100,
         height: 100,
         fit: BoxFit.cover,
-        errorBuilder: (context, error, stackTrace) {
-          return _buildPlaceholder();
-        },
+        errorBuilder: (context, error, stackTrace) => _buildPlaceholder(),
       );
     }
     
-    // imageUrl이 있으면 NetworkImage 사용
+    // 3. 네트워크 이미지 리스트 확인
+    if (product.imageUrls.isNotEmpty) {
+      return Image.network(
+        product.imageUrls.first,
+        width: 100,
+        height: 100,
+        fit: BoxFit.cover,
+        errorBuilder: (context, error, stackTrace) => _buildPlaceholder(),
+      );
+    }
+    
+    // 4. 단일 네트워크 이미지 확인
     if (product.imageUrl != null && product.imageUrl!.isNotEmpty) {
       return Image.network(
         product.imageUrl!,
         width: 100,
         height: 100,
         fit: BoxFit.cover,
-        errorBuilder: (context, error, stackTrace) {
-          return _buildPlaceholder();
-        },
+        errorBuilder: (context, error, stackTrace) => _buildPlaceholder(),
       );
     }
     
-    // 둘 다 없으면 placeholder
+    // 5. 이미지 없음
     return _buildPlaceholder();
   }
 

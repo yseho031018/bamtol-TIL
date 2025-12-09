@@ -1,6 +1,10 @@
+import 'package:bamtol/src/chat/page/chat_page.dart';
 import 'package:bamtol/src/common/components/app_font.dart';
 import 'package:bamtol/src/common/controller/bottom_nav_controller.dart';
 import 'package:bamtol/src/home/page/home_page.dart';
+import 'package:bamtol/src/my_bamtol/page/my_page.dart';
+import 'package:bamtol/src/near_me/page/near_me_page.dart';
+import 'package:bamtol/src/neighborhood_life/page/neighborhood_life_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
@@ -16,10 +20,10 @@ class Root extends GetView<BottomNavController> {
           controller: controller.tabController,
           children: [
             HomePage(),
-            const Center(child: AppFont('동네생활')),
-            const Center(child: AppFont('내 근처')),
-            const Center(child: AppFont('채팅')),
-            const Center(child: AppFont('나의 밤톨')),
+            const NeighborhoodLifePage(),
+            const NearMePage(),
+            const ChatPage(),
+            const MyBamtolPage(),
           ]),
       bottomNavigationBar: Obx(
         () => BottomNavigationBar(
